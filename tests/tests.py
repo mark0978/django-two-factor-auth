@@ -1,3 +1,4 @@
+# encoding=UTF8
 from binascii import unhexlify
 import os
 
@@ -652,7 +653,7 @@ class QRTest(UserMixin, TestCase):
 
     def setUp(self):
         super(QRTest, self).setUp()
-        self.create_user()
+        self.user = self.create_user(username=six.text_type('ⓑỚ𝓾⒦ȩ', 'utf8'))
         self.login_user()
 
     def test_without_secret(self):
@@ -681,7 +682,8 @@ class QRTest(UserMixin, TestCase):
 
         # Check things went as expected
         mockqrcode.assert_called_with(
-            get_otpauth_url('testserver:bouke@example.com', self.test_secret, "testserver"),
+            get_otpauth_url(accountname=self.user.username,
+                            secret=self.test_secret, issuer="testserver"),
             image_factory=default_factory)
         mockimg.save.assert_called()
         self.assertEquals(response.status_code, 200)
@@ -873,6 +875,14 @@ class UtilsTest(UserMixin, TestCase):
                             secret='abcdef123'),
             'otpauth://totp/My%20Site%3A%20bouke%40example.com?'
             'secret=abcdef123&issuer=My+Site')
+
+        self.assertEqualUrl(
+            get_otpauth_url(accountname=six.text_type('我不是逗比', 'utf8'),
+                            issuer=six.text_type('测试网站', 'utf8'),
+                            secret='abcdef123'),
+            'otpauth://totp/%E6%B5%8B%E8%AF%95%E7%BD%91%E7%AB%99%3A%20'
+            '%E6%88%91%E4%B8%8D%E6%98%AF%E9%80%97%E6%AF%94?'
+            'secret=abcdef123&issuer=测试网站')
 
     def assertEqualUrl(self, lhs, rhs):
         """

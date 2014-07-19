@@ -26,6 +26,11 @@ def get_otpauth_url(accountname, secret, issuer=None):
     # For a complete run-through of all the parameters, have a look at the
     # specs at:
     # https://code.google.com/p/google-authenticator/wiki/KeyUriFormat
+
+    # quote and urlencode work best with bytes, not unicode strings.
+    accountname = accountname.encode('utf8')
+    issuer = issuer.encode('utf8') if issuer else None
+
     label = quote('%s: %s' % (issuer, accountname) if issuer else accountname)
     query = {'secret': secret}
     if issuer:
