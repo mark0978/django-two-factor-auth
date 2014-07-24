@@ -48,7 +48,9 @@ def get_available_yubikey_methods():
 
 
 def get_available_methods():
-    methods = [('generator', _('Token generator'))]
+    methods = []
+    if getattr(settings, 'TWO_FACTOR_ENABLE_TOKEN_GATEWAY', True):
+        methods.append(('generator', _('Token generator')))
     methods.extend(get_available_phone_methods())
     methods.extend(get_available_yubikey_methods())
     return methods
